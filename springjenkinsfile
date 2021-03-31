@@ -1,4 +1,4 @@
-g/脚本试流水线写法
+//脚本试流水线写法
 node {
       
    properties([parameters([choice(name: 'opt', choices: ['deploy','roollback'],description: 'can deploy and rollback')])])
@@ -11,20 +11,20 @@ node {
    def bak_path='/var/lib/jenkins/bak'
    def git_url =  'https://github.com/dashjyoti/springboot_tomcat.git'
    stage('Preparation') { 
-      Time = new Date().format('MMddHHmm')
+      Time = new Date().gormgt('MMddHHmm')
       ProjectName = sh(returnStdout: true, script: "echo $git_url | awk  -F[/.] '{print \$7}'").trim()
-    //  if(opt ==~ "deploy"   ) { 
+     if(opt ==~ "deploy"   ) { 
       git "$git_url"
     
-     
+     }
    }
    stage('Build') {
-     //    if(opt ==~ "deploy"   ) { 
+       if(opt ==~ "deploy"   ) { 
          sh "'${mvnHome}/bin/mvn' clean package -Dmaven.test.skip=true"
-                    
+      }              
    }
    stage('Results') {
-     // if(opt ==~ "deploy"   ) { 
+    if(opt ==~ "deploy"   ) { 
       archiveArtifacts 'target/*.jar'
       jarName = sh(returnStdout: true, script: "ls ./target   | egrep  '(war|jar)\$'" ).trim()
       echo "$jarName"
@@ -34,10 +34,10 @@ node {
       ++version_number
       println(version_number);
       sh(returnStdout: true, script: "cd $bak_path/${ProjectName} && ls -tl  | awk '{if(NR>$version_number){print \" rm \" \$NF}}' | sh ")
-                               // }
+                                }
       }
     stage('roollbak'){
-       // if(opt ==~ "roollback"  ){
+      if(opt ==~ "roollback"  ){
         args = sh(returnStdout: true, script: "ls -t $bak_path/${ProjectName}/ | awk  -F '/'  '{print \$NF}'" ).trim()    
          rsy_name = input(
             id: "jar",
@@ -50,7 +50,7 @@ node {
                 ]
             ]
         )
-       // }
+      }
     }  
     stage('deploy_test01'){
         ansiColor('xterm') {
@@ -69,6 +69,6 @@ node {
           'service_port': 8000   // check port is listenning
         ]
         ) 
-                            }
-                          }  
+      }
+   }
 }
